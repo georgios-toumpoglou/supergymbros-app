@@ -16,7 +16,8 @@ from flask_wtf.csrf import CSRFProtect, CSRFError
 csrf = CSRFProtect(app)
 
 # ── DATABASE CONFIGURATION ──
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gym.db'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gym.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///gym.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback-secret-key')
 app.config['SESSION_PERMANENT'] = False
