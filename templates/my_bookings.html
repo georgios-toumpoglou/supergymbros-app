@@ -1,0 +1,444 @@
+{% extends 'base.html' %}
+
+{% block title %}Super Gym Bros — My Bookings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bookings-section {
+        padding: 50px 40px 80px;
+        flex: 1;
+    }
+
+    .bookings-title {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 3.5rem;
+        color: var(--green);
+        letter-spacing: 4px;
+        margin-bottom: 40px;
+    }
+
+    /* ── GRID TABLE ── */
+    .schedule-wrapper {
+        overflow-x: auto;
+    }
+
+    .schedule-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 2px;
+        min-width: 700px;
+    }
+
+    /* Time column */
+    .schedule-table .time-col {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.85rem;
+        color: #aaaaaa;
+        padding: 8px 16px 8px 0;
+        white-space: nowrap;
+        vertical-align: middle;
+        width: 100px;
+    }
+
+    /* Day headers */
+    .schedule-table thead th {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 1rem;
+        padding: 12px 6px;
+        text-align: center;
+        border: 1px solid #2a2a2a;
+    }
+
+    .day-header.past {
+        color: #555;
+        background-color: #0d0d0d;
+    }
+
+    .day-header.today {
+        color: var(--green);
+        background-color: #1a1a1a;
+    }
+
+    .day-header.future {
+        color: white;
+        background-color: #1a1a1a;
+    }
+
+    /* ── CELLS ── */
+    .schedule-table td.cell {
+        border: 1px solid #2a2a2a;
+        padding: 6px;
+        vertical-align: top;
+        min-height: 80px;
+        height: 80px;
+    }
+
+    /* Past day cells */
+    .cell.past {
+        background-color: #1a1a1a;
+        border: 1px solid #2a2a2a;
+    }
+
+    /* Active day cells */
+    .cell.active {
+        background-color: #2a2a2a;
+        border: 1px solid #444444;
+    }
+
+    /* ── CLASS CARD IN CELL ── */
+    .class-card-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        height: 100%;
+    }
+
+    /* Booked badge */
+    .booked-badge {
+        background-color: var(--green);
+        color: var(--black);
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 4px;
+        display: inline-block;
+        margin-bottom: 2px;
+    }
+
+    .class-name-cell {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.85rem;
+        color: white;
+        line-height: 1.2;
+    }
+
+    .class-name-cell.past-text {
+        color: #555;
+    }
+
+    .slots-info {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.75rem;
+        color: #aaaaaa;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .slots-info.past-text {
+        color: #444;
+    }
+
+    /* Book / Cancel buttons */
+    .btn-book {
+        background-color: var(--green);
+        color: var(--black);
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 10px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin-top: auto;
+        align-self: flex-start;
+    }
+
+    .btn-book:hover { background-color: #a8cc00; }
+
+    .btn-cancel {
+        background-color: #ff4d4d;
+        color: white;
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 10px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        margin-top: auto;
+        align-self: flex-start;
+    }
+
+    .btn-cancel:hover { background-color: #cc0000; }
+
+    /* Locked cell (deadline passed) */
+    .locked-text {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.7rem;
+        color: #555;
+        font-style: italic;
+    }
+
+    /* No credits warning */
+    .no-credits-warning {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.7rem;
+        color: #ff4d4d;
+    }
+
+    @media (max-width: 768px) {
+        .bookings-section { padding: 30px 16px 60px; }
+        .bookings-title { font-size: 2.5rem; }
+
+        /* Hide table, show tabs */
+        .schedule-wrapper { display: none !important; }
+        .mobile-tabs { display: block !important; }
+    }
+
+    /* ── MOBILE TABS ── */
+    .mobile-tabs { display: none; }
+
+    .day-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .day-tab {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.85rem;
+        padding: 8px 14px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .day-tab.past {
+        background-color: #1a1a1a;
+        color: #555;
+    }
+
+    .day-tab.active-day {
+        background-color: #2a2a2a;
+        color: white;
+    }
+
+    .day-tab.today-tab {
+        background-color: var(--green);
+        color: var(--black);
+        font-weight: 700;
+    }
+
+    .day-tab.active-day.selected {
+        outline: 2px solid var(--green);
+        color: var(--green);
+    }
+
+    .day-tab.past.selected {
+        outline: 2px solid #555;
+    }
+
+    /* Day panel */
+    .day-panel { display: none; }
+    .day-panel.visible { display: block; }
+
+    .mobile-slot {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #2a2a2a;
+    }
+
+    .mobile-time {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.8rem;
+        color: #aaaaaa;
+        min-width: 110px;
+        padding-top: 3px;
+    }
+
+    .mobile-class {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="bookings-section">
+    <h1 class="bookings-title">book a class</h1>
+
+    <!-- ── DESKTOP TABLE ── -->
+    <div class="schedule-wrapper">
+    <table class="schedule-table">
+        <thead>
+            <tr>
+                <th></th>
+                {% for day in days %}
+                    {% set day_date = week_dates[day] %}
+                    {% if day_date < today %}
+                        <th class="day-header past">{{ day }}</th>
+                    {% elif day_date == today %}
+                        <th class="day-header today">{{ day }}</th>
+                    {% else %}
+                        <th class="day-header future">{{ day }}</th>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for slot in time_slots %}
+            <tr>
+                <td class="time-col">{{ slot }}</td>
+
+                {% for day in days %}
+                    {% set day_date = week_dates[day] %}
+                    {% set schedule = grid[slot][day] %}
+                    {% set is_past = day_date < today %}
+
+                    {% if is_past %}
+                        <td class="cell past">
+                            {% if schedule %}
+                            <div class="class-card-cell">
+                                <span class="class-name-cell past-text">{{ schedule.gym_class.name }}</span>
+                                <span class="slots-info past-text">
+                                    <i class="bi bi-people-fill"></i>
+                                    {{ schedule.gym_class.capacity - schedule.slots_available }}/{{ schedule.gym_class.capacity }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td class="cell active">
+                            {% if schedule %}
+                            {% set is_booked = schedule.id in booked_schedule_ids %}
+                            <div class="class-card-cell">
+                                {% if is_booked %}<span class="booked-badge">booked</span>{% endif %}
+                                <span class="class-name-cell">{{ schedule.gym_class.name }}</span>
+                                <span class="slots-info">
+                                    <i class="bi bi-people-fill"></i>
+                                    {{ schedule.slots_available }}/{{ schedule.gym_class.capacity }}
+                                </span>
+                                {% if is_booked %}
+                                    {% if schedule.can_cancel %}
+                                    <form method="POST" action="/cancel/{{ schedule.id }}">
+                                        <button type="submit" class="btn-cancel">cancel</button>
+                                    </form>
+                                    {% else %}
+                                    <span class="locked-text">locked</span>
+                                    {% endif %}
+                                {% else %}
+                                    {% if schedule.can_book %}
+                                        {% if current_user.credits > 0 %}
+                                        <form method="POST" action="/book/{{ schedule.id }}">
+                                            <button type="submit" class="btn-book">book</button>
+                                        </form>
+                                        {% else %}
+                                        <span class="no-credits-warning">no credits</span>
+                                        {% endif %}
+                                    {% else %}
+                                    <span class="locked-text">locked</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    <!-- ── MOBILE TABS ── -->
+    <div class="mobile-tabs">
+
+        <!-- Tab buttons -->
+        <div class="day-tabs">
+            {% for day in days %}
+                {% set day_date = week_dates[day] %}
+                {% if day_date < today %}
+                    <button class="day-tab past" onclick="showDay('{{ day }}')">{{ day[:3] }}</button>
+                {% elif day_date == today %}
+                    <button class="day-tab today-tab selected" id="tab-{{ day }}" onclick="showDay('{{ day }}')">{{ day[:3] }}</button>
+                {% else %}
+                    <button class="day-tab active-day" id="tab-{{ day }}" onclick="showDay('{{ day }}')">{{ day[:3] }}</button>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Day panels -->
+        {% for day in days %}
+            {% set day_date = week_dates[day] %}
+            {% set is_past_day = day_date < today %}
+            <div class="day-panel {% if day_date == today %}visible{% endif %}" id="panel-{{ day }}">
+                {% for slot in time_slots %}
+                    {% set schedule = grid[slot][day] %}
+                    <div class="mobile-slot">
+                        <div class="mobile-time">{{ slot }}</div>
+                        <div class="mobile-class">
+                            {% if schedule %}
+                                {% if is_past_day %}
+                                    <span class="class-name-cell past-text">{{ schedule.gym_class.name }}</span>
+                                    <span class="slots-info past-text">
+                                        <i class="bi bi-people-fill"></i>
+                                        {{ schedule.gym_class.capacity - schedule.slots_available }}/{{ schedule.gym_class.capacity }}
+                                    </span>
+                                {% else %}
+                                    {% set is_booked = schedule.id in booked_schedule_ids %}
+                                    {% if is_booked %}<span class="booked-badge">booked</span>{% endif %}
+                                    <span class="class-name-cell">{{ schedule.gym_class.name }}</span>
+                                    <span class="slots-info">
+                                        <i class="bi bi-people-fill"></i>
+                                        {{ schedule.slots_available }}/{{ schedule.gym_class.capacity }}
+                                    </span>
+                                    {% if is_booked %}
+                                        {% if schedule.can_cancel %}
+                                        <form method="POST" action="/cancel/{{ schedule.id }}">
+                                            <button type="submit" class="btn-cancel">cancel</button>
+                                        </form>
+                                        {% else %}
+                                        <span class="locked-text">locked</span>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if schedule.can_book %}
+                                            {% if current_user.credits > 0 %}
+                                            <form method="POST" action="/book/{{ schedule.id }}">
+                                                <button type="submit" class="btn-book">book</button>
+                                            </form>
+                                            {% else %}
+                                            <span class="no-credits-warning">no credits</span>
+                                            {% endif %}
+                                        {% else %}
+                                        <span class="locked-text">locked</span>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showDay(day) {
+        // Hide all panels
+        document.querySelectorAll('.day-panel').forEach(p => p.classList.remove('visible'));
+        // Remove selected from all tabs
+        document.querySelectorAll('.day-tab').forEach(t => t.classList.remove('selected'));
+        // Show selected panel
+        const panel = document.getElementById('panel-' + day);
+        if (panel) panel.classList.add('visible');
+        // Mark selected tab
+        const tab = document.getElementById('tab-' + day);
+        if (tab) tab.classList.add('selected');
+    }
+</script>
+{% endblock %}

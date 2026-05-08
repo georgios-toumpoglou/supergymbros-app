@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+
+{% block title %}Super Gym Bros — Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── HERO ── */
+    .hero {
+        width: 100%;
+        height: 60vh;
+        overflow: hidden;
+        display: block;
+        line-height: 0;
+    }
+
+    .hero img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+    }
+
+    /* ── CLASSES SECTION ── */
+    .classes-section {
+        background-color: var(--black);
+        padding: 70px 40px 80px;
+    }
+
+    .classes-title {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 5rem;
+        color: var(--green);
+        letter-spacing: 6px;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .classes-subtitle {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 1.3rem;
+        color: white;
+        font-weight: 400;
+        letter-spacing: 6px;
+        text-transform: lowercase;
+        margin-bottom: 50px;
+    }
+
+    .class-card {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .class-img-wrapper {
+        width: 100%;
+        aspect-ratio: 270 / 400;
+        overflow: hidden;
+        border-left: 5px solid var(--green);
+    }
+
+    .class-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
+        transition: transform 0.4s ease;
+    }
+
+    .class-img-wrapper:hover img {
+        transform: scale(1.05);
+    }
+
+    .class-name {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 1.7rem;
+        font-weight: 700;
+        color: white;
+        margin-top: 14px;
+        text-transform: lowercase;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        line-height: 1.2;
+    }
+
+    .class-arrows { color: var(--green); }
+
+    /* ── CAROUSEL ── */
+    .carousel-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        padding: 0 10px;
+    }
+
+    .carousel-btn {
+        background: none;
+        border: none;
+        font-size: 2rem;
+        color: #aaaaaa;
+        cursor: pointer;
+        transition: color 0.2s;
+        flex-shrink: 0;
+        padding: 0 10px;
+        line-height: 1;
+        font-family: "Tilt Warp", sans-serif;
+    }
+
+    .carousel-btn:hover { color: var(--green); }
+
+    .carousel-track-wrapper {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .carousel-track {
+        display: flex;
+        transition: transform 0.4s ease;
+        gap: 1.5rem;
+    }
+
+    .carousel-slide {
+        flex-shrink: 0;
+        min-width: 0;
+    }
+
+    /* ── MOBILE HAMBURGER MENU ── */
+    @media (max-width: 992px) {
+        .navbar-nav { padding: 16px 0; }
+        .navbar-nav .nav-item { padding: 8px 0; border-bottom: 1px solid #1f1f1f; }
+        .navbar-nav .nav-item:last-child { border-bottom: none; }
+        .d-flex.gap-2 { padding: 16px 0; justify-content: center; }
+    }
+
+    @media (max-width: 768px) {
+        .hero { height: 35vh; }
+        .hero img { object-position: right center; }
+        .classes-section { padding: 40px 16px 50px; }
+        .classes-title { font-size: 3rem; letter-spacing: 3px; }
+        .classes-subtitle { font-size: 1rem; letter-spacing: 2px; }
+        .class-name { font-size: 1.2rem; }
+        .class-card { align-items: center; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+        .classes-title { font-size: 2.5rem; }
+        .classes-subtitle { font-size: 0.9rem; letter-spacing: 1px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- ── HERO ── -->
+    <section class="hero">
+        <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="Super Gym Bros">
+    </section>
+
+    <!-- ── CLASSES SECTION ── -->
+    <section class="classes-section">
+        <div class="text-center">
+            <h2 class="classes-title">classes</h2>
+            <p class="classes-subtitle">for you and everyone</p>
+        </div>
+
+        <div class="carousel-wrapper">
+            <button class="carousel-btn" id="prevBtn">«</button>
+            <div class="carousel-track-wrapper">
+                <div class="carousel-track" id="carouselTrack">
+                    <div class="carousel-slide">
+                        <div class="class-card">
+                            <div class="class-img-wrapper">
+                                <img src="{{ url_for('static', filename='img/crossfit.jpg') }}" alt="Cross Training">
+                            </div>
+                            <div class="class-name"><span class="class-arrows">»</span><span>cross training</span></div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="class-card">
+                            <div class="class-img-wrapper">
+                                <img src="{{ url_for('static', filename='img/hyrox.jpg') }}" alt="Hyrox">
+                            </div>
+                            <div class="class-name"><span class="class-arrows">»</span><span>hyrox</span></div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="class-card">
+                            <div class="class-img-wrapper">
+                                <img src="{{ url_for('static', filename='img/pilates.jpg') }}" alt="Pilates Reformer">
+                            </div>
+                            <div class="class-name"><span class="class-arrows">»</span><span>pilates reformer</span></div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="class-card">
+                            <div class="class-img-wrapper">
+                                <img src="{{ url_for('static', filename='img/box-fit.jpg') }}" alt="Box Fit">
+                            </div>
+                            <div class="class-name"><span class="class-arrows">»</span><span>box fit</span></div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="class-card">
+                            <div class="class-img-wrapper">
+                                <img src="{{ url_for('static', filename='img/yoga.jpg') }}" alt="Yoga">
+                            </div>
+                            <div class="class-name"><span class="class-arrows">»</span><span>yoga</span></div>
+                        </div>
+                    </div>
+                    <div class="carousel-slide">
+                        <div class="class-card">
+                            <div class="class-img-wrapper">
+                                <img src="{{ url_for('static', filename='img/trx.jpg') }}" alt="TRX">
+                            </div>
+                            <div class="class-name"><span class="class-arrows">»</span><span>trx</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-btn" id="nextBtn">»</button>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ── CAROUSEL LOGIC ──
+    const track = document.getElementById('carouselTrack');
+    const slides = document.querySelectorAll('.carousel-slide');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let currentIndex = 0;
+    const gap = 24;
+
+    function getSlidesVisible() {
+        if (window.innerWidth < 768) return 1;
+        if (window.innerWidth < 992) return 2;
+        return 3;
+    }
+
+    function getMaxIndex() { return slides.length - getSlidesVisible(); }
+
+    function setSlideWidths() {
+        const visible = getSlidesVisible();
+        const trackWidth = track.parentElement.offsetWidth;
+        const totalGap = gap * (visible - 1);
+        const slideWidth = (trackWidth - totalGap) / visible;
+        slides.forEach(slide => {
+            slide.style.width = slideWidth + 'px';
+            slide.style.flexShrink = '0';
+        });
+    }
+
+    function updateCarousel() {
+        const visible = getSlidesVisible();
+        const trackWidth = track.parentElement.offsetWidth;
+        const totalGap = gap * (visible - 1);
+        const slideWidth = (trackWidth - totalGap) / visible;
+        const offset = currentIndex * (slideWidth + gap);
+        track.style.transform = `translateX(-${offset}px)`;
+        prevBtn.style.opacity = currentIndex === 0 ? '0.3' : '1';
+        nextBtn.style.opacity = currentIndex >= getMaxIndex() ? '0.3' : '1';
+    }
+
+    prevBtn.addEventListener('click', () => { if (currentIndex > 0) { currentIndex--; updateCarousel(); } });
+    nextBtn.addEventListener('click', () => { if (currentIndex < getMaxIndex()) { currentIndex++; updateCarousel(); } });
+    window.addEventListener('resize', () => { currentIndex = Math.min(currentIndex, getMaxIndex()); setSlideWidths(); updateCarousel(); });
+    setSlideWidths();
+    updateCarousel();
+</script>
+{% endblock %}

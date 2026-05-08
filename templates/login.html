@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Super Gym Bros — Log In{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-section { padding: 60px 100px 80px; flex: 1; }
+    .login-title { font-family: "Tilt Warp", sans-serif; font-size: 3rem; color: var(--green); text-align: center; margin-bottom: 40px; }
+
+    .form-wrapper { width: 45%; margin: 0 auto; }
+
+    .form-label { font-family: "Tilt Warp", sans-serif; font-size: 1rem; color: white; margin-bottom: 8px; }
+
+    .form-control { background-color: var(--black); border: 2px solid white; border-radius: 6px; color: white; font-family: "Tilt Warp", sans-serif; font-size: 0.95rem; padding: 10px 14px; margin-bottom: 20px; }
+    .form-control:focus { background-color: var(--black); border-color: var(--green); color: white; box-shadow: none; }
+    .form-control:-webkit-autofill { -webkit-box-shadow: 0 0 0px 1000px black inset; -webkit-text-fill-color: white; }
+
+    .btn-submit { background-color: var(--green); color: var(--black); font-family: "Tilt Warp", sans-serif; font-weight: 700; font-size: 1.1rem; border: none; border-radius: 8px; padding: 10px 34px; margin-top: 10px; transition: background-color 0.2s; cursor: pointer; }
+    .btn-submit:hover { background-color: #a8cc00; }
+
+    .error-msg { color: #ff4d4d; font-size: 0.85rem; margin-top: -14px; margin-bottom: 14px; }
+
+    .register-link { margin-top: 20px; font-size: 0.9rem; color: #aaaaaa; }
+    .register-link a { color: var(--green); text-decoration: none; }
+    .register-link a:hover { text-decoration: underline; }
+
+    @media (max-width: 768px) {
+        .login-section { padding: 40px 24px 60px; }
+        .login-title { font-size: 2.2rem; }
+        .form-wrapper { width: 100%; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <section class="login-section">
+        <h1 class="login-title">Log In</h1>
+
+        <div class="form-wrapper">
+            <form method="POST" action="/login">
+                {{ form.hidden_tag() }}
+
+                <div>
+                    {{ form.email.label(class='form-label') }}
+                    {{ form.email(class='form-control') }}
+                    {% for error in form.email.errors %}<div class="error-msg">{{ error }}</div>{% endfor %}
+                </div>
+
+                <div>
+                    {{ form.password.label(class='form-label') }}
+                    {{ form.password(class='form-control') }}
+                    {% for error in form.password.errors %}<div class="error-msg">{{ error }}</div>{% endfor %}
+                </div>
+
+                {{ form.submit(class='btn-submit') }}
+
+                <p class="register-link">
+                    Don't have an account? <a href="/register">Register here</a>
+                </p>
+            </form>
+        </div>
+    </section>
+{% endblock %}

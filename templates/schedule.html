@@ -1,0 +1,699 @@
+{% extends 'base.html' %}
+
+{% block title %}Super Gym Bros — Schedule{% endblock %}
+
+{% block extra_css %}
+<style>
+    .schedule-section {
+        padding: 50px 40px 80px;
+        flex: 1;
+    }
+
+    /* ── HEADER: toggle between current/next week ── */
+    .schedule-header {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .view-toggle {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .toggle-btn {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 3rem;
+        letter-spacing: 4px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        transition: color 0.2s;
+        text-decoration: none;
+    }
+
+    .toggle-btn.active { color: var(--green); }
+    .toggle-btn.inactive { color: white; }
+    .toggle-btn.inactive:hover { color: #aaaaaa; }
+
+    .toggle-divider {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 2rem;
+        color: #444;
+    }
+
+    /* ── GRID TABLE ── */
+    .schedule-wrapper { overflow-x: auto; }
+
+    .schedule-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 2px;
+        min-width: 700px;
+    }
+
+    .time-col {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.85rem;
+        color: #aaaaaa;
+        padding: 8px 16px 8px 0;
+        white-space: nowrap;
+        vertical-align: middle;
+        width: 120px;
+    }
+
+    .schedule-table thead th {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 1rem;
+        padding: 12px 6px;
+        text-align: center;
+        border: 1px solid #2a2a2a;
+    }
+
+    .day-header.past { color: #555; background-color: #0d0d0d; }
+    .day-header.today { color: var(--green); background-color: #1a1a1a; }
+    .day-header.future { color: white; background-color: #1a1a1a; }
+    .day-header.next { color: white; background-color: #1a1a1a; }
+
+    .schedule-table td.cell {
+        border: 1px solid #2a2a2a;
+        padding: 6px;
+        vertical-align: top;
+        height: 80px;
+    }
+
+    .cell.past { background-color: #1a1a1a; }
+    .cell.active { background-color: #2a2a2a; border-color: #444; }
+    .cell.next-cell {
+        background-color: #1e1e1e;
+        border-color: #333;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .cell.next-cell:hover { background-color: #2a2a2a; }
+    .cell.next-cell.has-class { background-color: #2a2a2a; border-color: #444; }
+
+    /* ── CLASS CARD IN CELL ── */
+    .class-card-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        height: 100%;
+        cursor: pointer;
+    }
+
+    .class-name-cell {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.85rem;
+        color: white;
+        line-height: 1.2;
+    }
+
+    .class-name-cell.past-text { color: #555; }
+
+    .slots-info {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.75rem;
+        color: #aaaaaa;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .slots-info.past-text { color: #444; }
+
+    .slots-full { color: #ff4d4d; }
+
+    /* Clickable cell with bookings */
+    .class-card-cell.clickable .class-name-cell {
+        color: var(--green);
+        cursor: pointer;
+    }
+
+    .class-card-cell.clickable:hover .class-name-cell {
+        text-decoration: underline;
+    }
+
+    /* ── BOOKINGS MODAL ── */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-box {
+        background-color: #111111;
+        border: 2px solid var(--green);
+        border-radius: 12px;
+        padding: 30px;
+        width: 100%;
+        max-width: 380px;
+    }
+
+    .modal-title {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 1.3rem;
+        color: var(--green);
+        margin-bottom: 6px;
+    }
+
+    .modal-subtitle {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.85rem;
+        color: #aaaaaa;
+        margin-bottom: 20px;
+    }
+
+    .booking-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px;
+    }
+
+    .booking-list li {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.95rem;
+        color: white;
+        padding: 8px 0;
+        border-bottom: 1px solid #2a2a2a;
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .booking-list li:last-child { border-bottom: none; }
+
+    .booking-reg {
+        color: var(--green);
+        font-size: 0.8rem;
+        min-width: 70px;
+    }
+
+    .no-bookings {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.9rem;
+        color: #555;
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .btn-modal-close {
+        background-color: var(--green);
+        color: var(--black);
+        font-family: "Tilt Warp", sans-serif;
+        font-weight: 700;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 24px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        width: 100%;
+    }
+
+    .btn-modal-close:hover { background-color: #a8cc00; }
+
+    /* ── NEXT WEEK DROPDOWN MODAL ── */
+    .next-modal-box {
+        background-color: #111111;
+        border: 2px solid var(--green);
+        border-radius: 12px;
+        padding: 30px;
+        width: 100%;
+        max-width: 340px;
+        text-align: center;
+    }
+
+    .class-select {
+        width: 100%;
+        background-color: var(--black);
+        border: 2px solid white;
+        border-radius: 6px;
+        color: white;
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.95rem;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .class-select:focus { border-color: var(--green); }
+
+    .class-select option { background-color: #111111; }
+
+    .modal-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .btn-modal-confirm {
+        background-color: var(--green);
+        color: var(--black);
+        font-family: "Tilt Warp", sans-serif;
+        font-weight: 700;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 24px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-modal-confirm:hover { background-color: #a8cc00; }
+
+    .btn-modal-cancel {
+        background-color: transparent;
+        color: #aaaaaa;
+        font-family: "Tilt Warp", sans-serif;
+        border: 2px solid #444;
+        border-radius: 8px;
+        padding: 10px 24px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-modal-cancel:hover { border-color: white; color: white; }
+
+    /* Next week class tag */
+    .next-class-tag {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.8rem;
+        color: white;
+        background-color: #333;
+        border-radius: 4px;
+        padding: 2px 6px;
+        display: inline-block;
+    }
+
+    .edit-hint {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.65rem;
+        color: #555;
+        margin-top: 2px;
+    }
+
+    @media (max-width: 768px) {
+        .schedule-section { padding: 30px 16px 60px; }
+        .toggle-btn { font-size: 2rem; }
+        .toggle-divider { font-size: 1.5rem; }
+
+        /* Hide table, show tabs */
+        .schedule-wrapper { display: none !important; }
+        .mobile-tabs { display: block !important; }
+    }
+
+    /* ── MOBILE TABS ── */
+    .mobile-tabs { display: none; }
+
+    .day-tabs {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .day-tab {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.85rem;
+        padding: 8px 14px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .day-tab.past { background-color: #1a1a1a; color: #555; }
+    .day-tab.active-day { background-color: #2a2a2a; color: white; }
+    .day-tab.today-tab { background-color: var(--green); color: var(--black); font-weight: 700; }
+    .day-tab.next-tab { background-color: #2a2a2a; color: white; }
+    .day-tab.active-day.selected { outline: 2px solid var(--green); color: var(--green); }
+    .day-tab.next-tab.selected { outline: 2px solid var(--green); color: var(--green); }
+    .day-tab.past.selected { outline: 2px solid #555; }
+    .day-tab.today-tab.selected { outline: 2px solid white; color: var(--black); }
+
+    .day-panel { display: none; }
+    .day-panel.visible { display: block; }
+
+    .mobile-slot {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #2a2a2a;
+    }
+
+    .mobile-time {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.8rem;
+        color: #aaaaaa;
+        min-width: 110px;
+        padding-top: 3px;
+    }
+
+    .mobile-class { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="schedule-section">
+
+    <!-- ── HEADER TOGGLE ── -->
+    <div class="schedule-header">
+        <div class="view-toggle">
+            <button class="toggle-btn active" id="btnCurrent" onclick="showView('current')">schedule</button>
+            <span class="toggle-divider">|</span>
+            <button class="toggle-btn inactive" id="btnNext" onclick="showView('next')">manage next week</button>
+        </div>
+    </div>
+
+    <!-- ── CURRENT WEEK VIEW ── -->
+    <div id="viewCurrent">
+        <div class="schedule-wrapper">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    {% for day in days %}
+                        {% set day_date = week_dates[day] %}
+                        {% if day_date < today %}
+                            <th class="day-header past">{{ day }}</th>
+                        {% elif day_date == today %}
+                            <th class="day-header today">{{ day }}</th>
+                        {% else %}
+                            <th class="day-header future">{{ day }}</th>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for slot in time_slots %}
+                <tr>
+                    <td class="time-col">{{ slot }}</td>
+                    {% for day in days %}
+                        {% set day_date = week_dates[day] %}
+                        {% set s = grid[slot][day] %}
+                        {% set is_past = day_date < today %}
+
+                        {% if is_past %}
+                        <td class="cell past">
+                            {% if s %}
+                            <div class="class-card-cell" style="cursor:default;">
+                                <span class="class-name-cell past-text">{{ s.gym_class.name }}</span>
+                                <span class="slots-info past-text">
+                                    <i class="bi bi-people-fill"></i>
+                                    {{ s.gym_class.capacity - s.slots_available }}/{{ s.gym_class.capacity }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </td>
+                        {% else %}
+                        <td class="cell active">
+                            {% if s %}
+                            {% set bookings = bookings_per_schedule[s.id] %}
+                            {% set booked_count = bookings|length %}
+                            <div class="class-card-cell {% if booked_count > 0 %}clickable{% endif %}"
+                                 {% if booked_count > 0 %}
+                                 onclick="openBookingsModal('{{ s.gym_class.name }}', '{{ slot }}', {{ s.id }})"
+                                 {% else %}
+                                 style="cursor:default;"
+                                 {% endif %}>
+                                <span class="class-name-cell">{{ s.gym_class.name }}</span>
+                                <span class="slots-info {% if s.slots_available == 0 %}slots-full{% endif %}">
+                                    <i class="bi bi-people-fill"></i>
+                                    {{ booked_count }}/{{ s.gym_class.capacity }}
+                                </span>
+                            </div>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+        <!-- ── MOBILE TABS (current week) ── -->
+        <div class="mobile-tabs" id="mobileTabsCurrent">
+            <div class="day-tabs">
+                {% for day in days %}
+                    {% set day_date = week_dates[day] %}
+                    {% if day_date < today %}
+                        <button class="day-tab past" id="ctab-{{ day }}" onclick="showCurrentDay('{{ day }}')">{{ day[:3] }}</button>
+                    {% elif day_date == today %}
+                        <button class="day-tab today-tab selected" id="ctab-{{ day }}" onclick="showCurrentDay('{{ day }}')">{{ day[:3] }}</button>
+                    {% else %}
+                        <button class="day-tab active-day" id="ctab-{{ day }}" onclick="showCurrentDay('{{ day }}')">{{ day[:3] }}</button>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% for day in days %}
+                {% set day_date = week_dates[day] %}
+                {% set is_past_day = day_date < today %}
+                <div class="day-panel {% if day_date == today %}visible{% endif %}" id="cpanel-{{ day }}">
+                    {% for slot in time_slots %}
+                        {% set s = grid[slot][day] %}
+                        <div class="mobile-slot">
+                            <div class="mobile-time">{{ slot }}</div>
+                            <div class="mobile-class">
+                                {% if s %}
+                                    {% set bookings = bookings_per_schedule[s.id] %}
+                                    {% set booked_count = bookings|length %}
+                                    {% if is_past_day %}
+                                        <span class="class-name-cell past-text">{{ s.gym_class.name }}</span>
+                                        <span class="slots-info past-text"><i class="bi bi-people-fill"></i> {{ s.gym_class.capacity - s.slots_available }}/{{ s.gym_class.capacity }}</span>
+                                    {% else %}
+                                        <span class="class-name-cell" {% if booked_count > 0 %}style="cursor:pointer;color:var(--green);" onclick="openBookingsModal('{{ s.gym_class.name }}', '{{ slot }}', {{ s.id }})"{% endif %}>{{ s.gym_class.name }}</span>
+                                        <span class="slots-info"><i class="bi bi-people-fill"></i> {{ booked_count }}/{{ s.gym_class.capacity }}</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ── NEXT WEEK VIEW ── -->
+    <div id="viewNext" style="display:none;">
+        <div class="schedule-wrapper">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    {% for day in days %}
+                        <th class="day-header next">{{ day }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for slot in time_slots %}
+                <tr>
+                    <td class="time-col">{{ slot }}</td>
+                    {% for i, day in enumerate(days) %}
+                        {% set nws = next_grid[slot][day] %}
+                        {% set slot_hour = slot.split(':')[0] | int %}
+                        {% set is_sat_closed = (day == 'saturday' and slot_hour >= 17) %}
+                        <td class="cell {% if is_sat_closed %}past{% else %}next-cell {% if nws %}has-class{% endif %}{% endif %}"
+                            {% if not is_sat_closed %}
+                            onclick="openNextModal({{ i }}, '{{ slot.split('-')[0] }}', {{ nws.class_id if nws else 'null' }})"
+                            {% endif %}>
+                            {% if nws and not is_sat_closed %}
+                            <span class="next-class-tag">{{ nws.gym_class.name }}</span>
+                            <span class="edit-hint">click to edit</span>
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+        <!-- ── MOBILE TABS (next week) ── -->
+        <div class="mobile-tabs" id="mobileTabsNext">
+            <div class="day-tabs">
+                {% for day in days %}
+                    <button class="day-tab next-tab" id="ntab-{{ day }}" onclick="showNextDay('{{ day }}')">{{ day[:3] }}</button>
+                {% endfor %}
+            </div>
+            {% for i, day in enumerate(days) %}
+                <div class="day-panel {% if loop.first %}visible{% endif %}" id="npanel-{{ day }}">
+                    {% for slot in time_slots %}
+                        {% set nws = next_grid[slot][day] %}
+                        {% set slot_hour = slot.split(':')[0] | int %}
+                        {% set is_sat_closed = (day == 'saturday' and slot_hour >= 17) %}
+                        <div class="mobile-slot">
+                            <div class="mobile-time">{{ slot }}</div>
+                            <div class="mobile-class">
+                                {% if is_sat_closed %}
+                                    <span style="font-family:'Tilt Warp',sans-serif; font-size:0.75rem; color:#333;">closed</span>
+                                {% elif nws %}
+                                    <span class="next-class-tag" style="cursor:pointer;" onclick="openNextModal({{ i }}, '{{ slot.split('-')[0] }}', {{ nws.class_id }})">{{ nws.gym_class.name }}</span>
+                                    <span class="edit-hint">tap to edit</span>
+                                {% else %}
+                                    <span style="font-family:'Tilt Warp',sans-serif; font-size:0.75rem; color:#444; cursor:pointer;" onclick="openNextModal({{ i }}, '{{ slot.split('-')[0] }}', null)">+ add class</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</section>
+
+<!-- ── BOOKINGS MODAL ── -->
+<div class="modal-overlay" id="bookingsModal">
+    <div class="modal-box">
+        <div class="modal-title" id="bookingsModalTitle">-</div>
+        <div class="modal-subtitle" id="bookingsModalSubtitle">-</div>
+        <ul class="booking-list" id="bookingsList"></ul>
+        <button class="btn-modal-close" onclick="closeBookingsModal()">Close</button>
+    </div>
+</div>
+
+<!-- ── NEXT WEEK MODAL ── -->
+<div class="modal-overlay" id="nextModal">
+    <div class="next-modal-box">
+        <div class="modal-title" id="nextModalTitle">Set Class</div>
+        <div class="modal-subtitle" id="nextModalSubtitle">-</div>
+        <form method="POST" action="/next-week/set" id="nextWeekForm">
+            <input type="hidden" name="day_of_week" id="nextDayInput">
+            <input type="hidden" name="time_start" id="nextTimeInput">
+            <select name="class_id" class="class-select" id="nextClassSelect">
+                <option value="">— no class —</option>
+                {% for c in all_classes %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+                {% endfor %}
+            </select>
+            <div class="modal-buttons">
+                <button type="submit" class="btn-modal-confirm">Save</button>
+                <button type="button" class="btn-modal-cancel" onclick="closeNextModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bookings data from server -->
+<script>
+const bookingsData = {
+    {% for s_id, bookings in bookings_per_schedule.items() %}
+    {{ s_id }}: {{ bookings | tojson }},
+    {% endfor %}
+};
+
+const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+// Auto-show next week view if redirected after save
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('view') === 'next') {
+    showView('next');
+}
+
+// ── MOBILE TAB FUNCTIONS ──
+function showCurrentDay(day) {
+    document.querySelectorAll('#mobileTabsCurrent .day-panel').forEach(p => p.classList.remove('visible'));
+    document.querySelectorAll('#mobileTabsCurrent .day-tab').forEach(t => t.classList.remove('selected'));
+    const panel = document.getElementById('cpanel-' + day);
+    const tab = document.getElementById('ctab-' + day);
+    if (panel) panel.classList.add('visible');
+    if (tab) tab.classList.add('selected');
+}
+
+function showNextDay(day) {
+    document.querySelectorAll('#mobileTabsNext .day-panel').forEach(p => p.classList.remove('visible'));
+    document.querySelectorAll('#mobileTabsNext .day-tab').forEach(t => t.classList.remove('selected'));
+    const panel = document.getElementById('npanel-' + day);
+    const tab = document.getElementById('ntab-' + day);
+    if (panel) panel.classList.add('visible');
+    if (tab) tab.classList.add('selected');
+}
+
+// Init first next tab as selected
+document.addEventListener('DOMContentLoaded', function() {
+    const firstNextTab = document.querySelector('#mobileTabsNext .day-tab');
+    if (firstNextTab) firstNextTab.classList.add('selected');
+});
+
+// ── VIEW TOGGLE ──
+function showView(view) {
+    if (view === 'current') {
+        document.getElementById('viewCurrent').style.display = 'block';
+        document.getElementById('viewNext').style.display = 'none';
+        document.getElementById('btnCurrent').classList.add('active');
+        document.getElementById('btnCurrent').classList.remove('inactive');
+        document.getElementById('btnNext').classList.add('inactive');
+        document.getElementById('btnNext').classList.remove('active');
+    } else {
+        document.getElementById('viewCurrent').style.display = 'none';
+        document.getElementById('viewNext').style.display = 'block';
+        document.getElementById('btnNext').classList.add('active');
+        document.getElementById('btnNext').classList.remove('inactive');
+        document.getElementById('btnCurrent').classList.add('inactive');
+        document.getElementById('btnCurrent').classList.remove('active');
+    }
+}
+
+// ── BOOKINGS MODAL ──
+function openBookingsModal(className, slot, scheduleId) {
+    const bookings = bookingsData[scheduleId] || [];
+    if (bookings.length === 0) return;
+
+    document.getElementById('bookingsModalTitle').textContent = className;
+    document.getElementById('bookingsModalSubtitle').textContent = slot;
+
+    const list = document.getElementById('bookingsList');
+    list.innerHTML = '';
+    bookings.forEach((b, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="booking-reg">${b.reg}</span><span>${b.name}</span>`;
+        list.appendChild(li);
+    });
+
+    document.getElementById('bookingsModal').classList.add('active');
+}
+
+function closeBookingsModal() {
+    document.getElementById('bookingsModal').classList.remove('active');
+}
+
+// ── NEXT WEEK MODAL ──
+function openNextModal(dayIndex, timeStart, currentClassId) {
+    document.getElementById('nextModalTitle').textContent = 'Set Class';
+    document.getElementById('nextModalSubtitle').textContent = dayNames[dayIndex] + ' ' + timeStart;
+    document.getElementById('nextDayInput').value = dayIndex;
+    document.getElementById('nextTimeInput').value = timeStart;
+
+    const select = document.getElementById('nextClassSelect');
+    select.value = currentClassId || '';
+
+    document.getElementById('nextModal').classList.add('active');
+}
+
+function closeNextModal() {
+    document.getElementById('nextModal').classList.remove('active');
+}
+
+// Close modals on outside click
+document.getElementById('bookingsModal').addEventListener('click', function(e) {
+    if (e.target === this) closeBookingsModal();
+});
+document.getElementById('nextModal').addEventListener('click', function(e) {
+    if (e.target === this) closeNextModal();
+});
+</script>
+{% endblock %}

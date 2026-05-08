@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <title>{% block title %}Super Gym Bros{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Google Fonts: Tilt Warp -->
+    <link href="https://fonts.googleapis.com/css2?family=Tilt+Warp&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --green: #D6FB00;
+            --black: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ── BODY: pattern background, fixed ── */
+        body {
+            background-color: #000000;
+            background-image: url("{{ url_for('static', filename='img/pattern.png') }}");
+            background-repeat: repeat;
+            background-attachment: fixed;
+            background-size: 90px 62px;
+            font-family: "Tilt Warp", sans-serif;
+            color: white;
+        }
+
+        /* ── PAGE WRAPPER: 70% centered ── */
+        .page-wrapper {
+            width: 70%;
+            margin: 0 auto;
+            background-color: var(--black);
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background-color: var(--black);
+            padding: 12px 24px;
+            border-bottom: 3px solid var(--green);
+        }
+
+        .navbar-brand img {
+            width: 220px;
+            height: 75px;
+            object-fit: contain;
+        }
+
+        .nav-link {
+            color: white !important;
+            font-family: "Tilt Warp", sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: lowercase;
+            letter-spacing: 1px;
+            padding: 0 24px !important;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--green) !important;
+        }
+
+        .nav-link.active {
+            color: var(--green) !important;
+        }
+
+        .btn-nav {
+            background-color: var(--green);
+            color: var(--black);
+            font-family: "Tilt Warp", sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 22px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-nav:hover {
+            background-color: #a8cc00;
+            color: var(--black);
+        }
+
+        /* ── USER INFO (navbar right) ── */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            font-family: "Tilt Warp", sans-serif;
+        }
+
+        .user-info i {
+            font-size: 1.8rem;
+            color: var(--green);
+        }
+
+        .user-name {
+            font-size: 1rem;
+            color: white;
+            line-height: 1.2;
+        }
+
+        .user-credits {
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .btn-logout {
+            background-color: var(--green);
+            border: none;
+            color: var(--black);
+            font-family: "Tilt Warp", sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 8px 22px;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-logout:hover {
+            background-color: #a8cc00;
+            color: var(--black);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background-color: var(--black);
+            border-top: 1px solid #1f1f1f;
+            padding: 20px 0;
+            text-align: center;
+            font-size: 0.78rem;
+            color: #444;
+            letter-spacing: 0.5px;
+            font-family: "Tilt Warp", sans-serif;
+            margin-top: auto;
+        }
+
+        footer span {
+            color: var(--green);
+        }
+
+        /* ── MOBILE HAMBURGER MENU ── */
+        @media (max-width: 992px) {
+            .navbar-nav {
+                padding: 16px 0;
+            }
+
+            .navbar-nav .nav-item {
+                padding: 8px 0;
+                border-bottom: 1px solid #1f1f1f;
+            }
+
+            .navbar-nav .nav-item:last-child {
+                border-bottom: none;
+            }
+
+            .d-flex.gap-2 {
+                padding: 16px 0;
+                justify-content: center;
+            }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 992px) {
+            .page-wrapper { width: 90%; }
+        }
+
+        @media (max-width: 768px) {
+            .page-wrapper { width: 100%; }
+            .navbar-brand img { width: 140px; height: 50px; }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="page-wrapper">
+
+    <!-- ── NAVBAR ── -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Super Gym Bros Logo">
+            </a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <i class="bi bi-list text-white fs-2"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+
+                <!-- ── GUEST MENU ── -->
+                {% if not current_user.is_authenticated %}
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="/">home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'classes' %}active{% endif %}" href="/classes">classes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" href="/about">about us</a>
+                    </li>
+                </ul>
+                <div class="d-flex gap-2">
+                    <a href="/register" class="btn btn-nav">Register</a>
+                    <a href="/login" class="btn btn-nav">Log In</a>
+                </div>
+
+                <!-- ── OWNER MENU ── -->
+                {% elif current_user.role == 1 %}
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="/">home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'customers' %}active{% endif %}" href="/customers">customers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'schedule' %}active{% endif %}" href="/schedule">schedule</a>
+                    </li>
+                </ul>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="user-info">
+                        <i class="bi bi-person-circle"></i>
+                        <div class="user-name">{{ current_user.name }}</div>
+                    </div>
+                    <a href="/logout" class="btn-logout">Log Out</a>
+                </div>
+
+                <!-- ── MEMBER MENU ── -->
+                {% else %}
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="/">home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'classes' %}active{% endif %}" href="/classes">classes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'my_bookings' %}active{% endif %}" href="/my-bookings">book a class</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'about' %}active{% endif %}" href="/about">about us</a>
+                    </li>
+                </ul>
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="user-info">
+                        <i class="bi bi-person-circle"></i>
+                        <div>
+                            <div class="user-name">{{ current_user.name }}</div>
+                            <div class="user-credits"><span style="color: var(--green);">credits:</span> {{ current_user.credits }}</div>
+                        </div>
+                    </div>
+                    <a href="/logout" class="btn-logout">Log Out</a>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- ── RADIO PLAYER (owner only) ── -->
+    {% if current_user.is_authenticated and current_user.role == 1 %}
+    <div style="background-color:#111111; border-bottom:1px solid #1a1a1a; padding:8px 24px; display:flex; align-items:center; justify-content:space-between; gap:20px;">
+        <div style="display:flex; align-items:center; gap:10px; font-family:'Tilt Warp',sans-serif; font-size:0.85rem; color:white;">
+            <i class="bi bi-music-note-beamed" style="color:var(--green);"></i>
+            <span>Intense Radio</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <button id="playBtn" onclick="toggleRadio()" style="background-color:var(--green); color:#000; border:none; border-radius:50%; width:32px; height:32px; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                <i class="bi bi-play-fill" id="playIcon"></i>
+            </button>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.05" value="0.7"
+                   oninput="setRadioVolume(this.value)"
+                   style="-webkit-appearance:none; width:90px; height:4px; border-radius:2px; background:#444; outline:none; cursor:pointer;">
+            <i class="bi bi-volume-up" style="color:#aaaaaa;"></i>
+        </div>
+        <audio id="radioStream" src="https://intenseradio.live-streams.nl/live" preload="none"></audio>
+    </div>
+    {% endif %}
+
+    <!-- ── PAGE CONTENT ── -->
+    <div class="flex-grow-1">
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div style="padding: 20px 40px 0;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}" 
+                         style="font-family: 'Tilt Warp', sans-serif; font-size: 0.95rem;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+        © COPYRIGHT 2026 | SUPER GYM BROS | ALL RIGHTS RESERVED | Developed by <span>GToumb</span>
+    </footer>
+
+</div><!-- end page-wrapper -->
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{% block extra_js %}{% endblock %}
+
+<script>
+    // ── RADIO PLAYER ──
+    const radio = document.getElementById('radioStream');
+    const radioIcon = document.getElementById('playIcon');
+
+    function toggleRadio() {
+        if (!radio) return;
+        if (radio.paused) {
+            radio.play();
+            radioIcon.className = 'bi bi-pause-fill';
+        } else {
+            radio.pause();
+            radioIcon.className = 'bi bi-play-fill';
+        }
+    }
+
+    function setRadioVolume(val) {
+        if (!radio) return;
+        radio.volume = parseFloat(val);
+    }
+</script>
+
+</body>
+</html>

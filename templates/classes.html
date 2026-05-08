@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Super Gym Bros — Classes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-title-section { background-color: var(--black); padding: 60px 60px 20px; text-align: center; }
+    .page-title { font-family: "Tilt Warp", sans-serif; font-size: 6rem; color: var(--green); letter-spacing: 8px; line-height: 1; }
+
+    .class-item { background-color: var(--black); padding: 60px 60px; border-bottom: 1px solid #1a1a1a; }
+    .class-item:last-of-type { border-bottom: none; }
+
+    .class-img-wrapper { width: 100%; aspect-ratio: 270 / 400; overflow: hidden; border-left: 5px solid var(--green); max-width: 260px; }
+    .class-img-wrapper img { width: 100%; height: 100%; object-fit: cover; object-position: center top; transition: transform 0.4s ease; }
+    .class-img-wrapper:hover img { transform: scale(1.05); }
+
+    .class-content { display: flex; flex-direction: column; justify-content: center; padding: 0 30px; }
+    .class-title { font-family: "Tilt Warp", sans-serif; font-size: 2rem; color: white; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .class-title .arrows { color: var(--green); }
+    .class-description { font-family: "Tilt Warp", sans-serif; font-size: 0.95rem; color: #cccccc; line-height: 1.8; margin-bottom: 30px; }
+
+    .difficulty-label { font-family: "Tilt Warp", sans-serif; font-size: 1.1rem; color: white; margin-bottom: 8px; }
+    .stars i { font-size: 1.4rem; color: var(--green); }
+    .stars i.empty { color: #333333; }
+
+    .justify-content-lg-end { justify-content: flex-end; }
+
+    @media (max-width: 992px) {
+        .page-title { font-size: 4rem; }
+    }
+
+    @media (max-width: 768px) {
+        .justify-content-lg-end { justify-content: flex-start !important; }
+        .page-title-section { padding: 40px 24px 10px; }
+        .page-title { font-size: 3rem; letter-spacing: 4px; }
+        .class-item { padding: 40px 24px; }
+        .class-content { padding: 20px 0 0; }
+        .class-title { font-size: 1.5rem; }
+        .class-description { font-size: 0.88rem; }
+        .class-item .row { flex-direction: column !important; }
+        .class-item .order-img-first { order: 1 !important; }
+        .class-item .order-text-second { order: 2 !important; }
+    }
+
+    @media (max-width: 480px) {
+        .page-title { font-size: 2.5rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <section class="page-title-section">
+        <h1 class="page-title">classes</h1>
+    </section>
+
+    <!-- ── CROSS TRAINING ── -->
+    <div class="class-item">
+        <div class="row align-items-start">
+            <div class="col-md-4 col-12 order-img-first mb-4 mb-lg-0">
+                <div class="class-img-wrapper">
+                    <img src="{{ url_for('static', filename='img/crossfit.jpg') }}" alt="Cross Training">
+                </div>
+            </div>
+            <div class="col-md-8 col-12 order-text-second">
+                <div class="class-content">
+                    <div class="class-title"><span class="arrows">»</span> cross training</div>
+                    <p class="class-description">Cross Training is a high-intensity functional fitness program that combines elements of weightlifting, cardio, and gymnastics. Every session is different, keeping your body constantly challenged and adapting. It's designed to improve strength, endurance, flexibility, and overall athletic performance. Whether you're a beginner or an experienced athlete, Cross Training scales to your level and pushes you to become the best version of yourself.</p>
+                    <div class="difficulty-label">difficulty:</div>
+                    <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star empty"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── HYROX ── -->
+    <div class="class-item">
+        <div class="row align-items-start">
+            <div class="col-md-8 col-12 order-text-second mb-4 mb-lg-0">
+                <div class="class-content">
+                    <div class="class-title"><span class="arrows">»</span> hyrox</div>
+                    <p class="class-description">Hyrox is the world's leading fitness racing competition — and our training sessions prepare you for exactly that. Combining 8 functional workout stations with running intervals, Hyrox tests your endurance, strength, and mental toughness like nothing else. Our certified Hyrox coaches will guide you through structured training plans designed to help you cross that finish line stronger and faster every time.</p>
+                    <div class="difficulty-label">difficulty:</div>
+                    <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i></div>
+                </div>
+            </div>
+            <div class="col-md-4 col-12 order-img-first d-flex justify-content-lg-end">
+                <div class="class-img-wrapper">
+                    <img src="{{ url_for('static', filename='img/hyrox.jpg') }}" alt="Hyrox">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── PILATES REFORMER ── -->
+    <div class="class-item">
+        <div class="row align-items-start">
+            <div class="col-md-4 col-12 order-img-first mb-4 mb-lg-0">
+                <div class="class-img-wrapper">
+                    <img src="{{ url_for('static', filename='img/pilates.jpg') }}" alt="Pilates Reformer">
+                </div>
+            </div>
+            <div class="col-md-8 col-12 order-text-second">
+                <div class="class-content">
+                    <div class="class-title"><span class="arrows">»</span> pilates reformer</div>
+                    <p class="class-description">Pilates Reformer uses a specialized spring-resistance machine to deliver a full-body workout that focuses on core strength, posture, flexibility, and controlled movement. Unlike mat Pilates, the Reformer adds resistance and support, making it suitable for all fitness levels — from rehabilitation to advanced training. Sessions are low-impact but incredibly effective, leaving you feeling stronger, longer, and more balanced.</p>
+                    <div class="difficulty-label">difficulty:</div>
+                    <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star empty"></i><i class="bi bi-star empty"></i><i class="bi bi-star empty"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TRX ── -->
+    <div class="class-item">
+        <div class="row align-items-start">
+            <div class="col-md-8 col-12 order-text-second mb-4 mb-lg-0">
+                <div class="class-content">
+                    <div class="class-title"><span class="arrows">»</span> trx</div>
+                    <p class="class-description">TRX Suspension Training uses your own bodyweight and gravity to build strength, balance, coordination, flexibility, and core stability simultaneously. Developed by a US Navy SEAL, TRX is used by elite athletes and fitness beginners alike. The suspended straps make every exercise adjustable to your fitness level, making it one of the most versatile and efficient training methods available. Expect a serious full-body burn in every session.</p>
+                    <div class="difficulty-label">difficulty:</div>
+                    <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star empty"></i><i class="bi bi-star empty"></i></div>
+                </div>
+            </div>
+            <div class="col-md-4 col-12 order-img-first d-flex justify-content-lg-end">
+                <div class="class-img-wrapper">
+                    <img src="{{ url_for('static', filename='img/trx.jpg') }}" alt="TRX">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── BOX FIT ── -->
+    <div class="class-item">
+        <div class="row align-items-start">
+            <div class="col-md-4 col-12 order-img-first mb-4 mb-lg-0">
+                <div class="class-img-wrapper">
+                    <img src="{{ url_for('static', filename='img/box-fit.jpg') }}" alt="Box Fit">
+                </div>
+            </div>
+            <div class="col-md-8 col-12 order-text-second">
+                <div class="class-content">
+                    <div class="class-title"><span class="arrows">»</span> box fit</div>
+                    <p class="class-description">Box Fit is a non-contact boxing-inspired fitness class that combines punching combinations, footwork drills, and conditioning exercises into one explosive workout. You'll burn serious calories, improve your coordination and agility, and build functional upper-body and core strength — all without stepping into a ring. It's fast-paced, fun, and incredibly effective for both weight loss and cardiovascular fitness.</p>
+                    <div class="difficulty-label">difficulty:</div>
+                    <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star empty"></i><i class="bi bi-star empty"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── YOGA ── -->
+    <div class="class-item">
+        <div class="row align-items-start">
+            <div class="col-md-8 col-12 order-text-second mb-4 mb-lg-0">
+                <div class="class-content">
+                    <div class="class-title"><span class="arrows">»</span> yoga</div>
+                    <p class="class-description">Our Yoga classes offer the perfect balance to intense training — focusing on breath, mindfulness, flexibility, and inner strength. Suitable for all levels, our sessions blend traditional Hatha and Vinyasa styles to improve mobility, reduce stress, and enhance body awareness. Whether you're recovering from a tough workout or simply looking to reconnect with your body and mind, Yoga at Super Gym Bros is your sanctuary.</p>
+                    <div class="difficulty-label">difficulty:</div>
+                    <div class="stars"><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star empty"></i><i class="bi bi-star empty"></i><i class="bi bi-star empty"></i></div>
+                </div>
+            </div>
+            <div class="col-md-4 col-12 order-img-first d-flex justify-content-lg-end">
+                <div class="class-img-wrapper">
+                    <img src="{{ url_for('static', filename='img/yoga.jpg') }}" alt="Yoga">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

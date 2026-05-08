@@ -1,0 +1,611 @@
+{% extends 'base.html' %}
+
+{% block title %}Super Gym Bros — Customers{% endblock %}
+
+{% block extra_css %}
+<style>
+    .customers-section {
+        padding: 60px 60px 80px;
+        flex: 1;
+    }
+
+    /* ── HEADER: title + search ── */
+    .customers-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 40px;
+    }
+
+    .customers-title {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 4rem;
+        color: var(--green);
+        letter-spacing: 4px;
+        margin-bottom: 0;
+    }
+
+    .search-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-input {
+        background-color: var(--black);
+        border: 2px solid white;
+        border-radius: 8px;
+        color: white;
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.95rem;
+        padding: 10px 40px 10px 16px;
+        outline: none;
+        width: 240px;
+        transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+        border-color: var(--green);
+    }
+
+    .search-input::placeholder {
+        color: #555;
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 12px;
+        color: #555;
+        font-size: 1rem;
+        pointer-events: none;
+    }
+
+    /* ── TABLE ── */
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    .customers-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: "Tilt Warp", sans-serif;
+        min-width: 600px;
+    }
+
+    /* Column widths */
+    .customers-table th:nth-child(1),
+    .customers-table td:nth-child(1) { width: 12%; }  /* Reg. No. */
+
+    .customers-table th:nth-child(2),
+    .customers-table td:nth-child(2) { width: 28%; }  /* Name - largest */
+
+    .customers-table th:nth-child(3),
+    .customers-table td:nth-child(3) { width: 30%; }  /* Email */
+
+    .customers-table th:nth-child(4),
+    .customers-table td:nth-child(4) { width: 20%; }  /* Subscription */
+
+    .customers-table th:nth-child(5),
+    .customers-table td:nth-child(5) { width: 10%; }  /* Credits - smallest */
+
+    .customers-table th:nth-child(6),
+    .customers-table td:nth-child(6) { width: 5%; text-align: center; }  /* Delete */
+
+    /* Delete button */
+    .btn-delete {
+        background: none;
+        border: none;
+        color: var(--green);
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: color 0.2s;
+        padding: 4px;
+    }
+
+    .btn-delete:hover { color: #ff4d4d; }
+
+    /* Header row */
+    .customers-table thead tr {
+        background-color: var(--green);
+    }
+
+    .customers-table thead th {
+        color: var(--black);
+        font-size: 1.1rem;
+        padding: 14px 20px;
+        text-align: left;
+        font-weight: 700;
+    }
+
+    /* Body rows */
+    .customers-table tbody tr {
+        border-bottom: 1px solid #1a1a1a;
+        transition: background-color 0.2s;
+    }
+
+    .customers-table tbody tr:hover {
+        background-color: #111111;
+    }
+
+    .customers-table tbody td {
+        color: white;
+        font-size: 1rem;
+        padding: 16px 20px;
+        vertical-align: middle;
+    }
+
+    .reg-no {
+        color: var(--green);
+        font-weight: 700;
+    }
+
+    .btn-add-customer {
+        background-color: var(--green);
+        color: var(--black);
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 18px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+    }
+
+    .btn-add-customer:hover { background-color: #a8cc00; }
+    .subscription-select {
+        background-color: var(--black);
+        color: white;
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.9rem;
+        font-weight: 700;
+        border: 2px solid white;
+        border-radius: 6px;
+        padding: 6px 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        appearance: auto;
+    }
+
+    .subscription-select.inactive {
+        background-color: #ff4d4d;
+        border-color: #ff4d4d;
+        color: white;
+    }
+
+    .subscription-select:focus {
+        outline: 2px solid var(--green);
+    }
+
+    /* ── CREDITS ── */
+    .credits-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .credits-value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: white;
+        min-width: 30px;
+    }
+
+    .btn-add-credits {
+        background-color: var(--green);
+        color: var(--black);
+        border: none;
+        border-radius: 6px;
+        width: 32px;
+        height: 32px;
+        font-size: 1.4rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+        line-height: 1;
+    }
+
+    .btn-add-credits:hover { background-color: #a8cc00; }
+
+    .form-label-modal {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.85rem;
+        color: #aaaaaa;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-box {
+        background-color: #111111;
+        border: 2px solid var(--green);
+        border-radius: 12px;
+        padding: 30px;
+        width: 100%;
+        max-width: 320px;
+        text-align: center;
+    }
+
+    .modal-title {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 1.3rem;
+        color: var(--green);
+        margin-bottom: 10px;
+    }
+
+    .modal-subtitle {
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 0.9rem;
+        color: #aaaaaa;
+        margin-bottom: 24px;
+    }
+
+    .modal-input {
+        width: 100%;
+        background-color: var(--black);
+        border: 2px solid white;
+        border-radius: 6px;
+        color: white;
+        font-family: "Tilt Warp", sans-serif;
+        font-size: 1.2rem;
+        padding: 10px;
+        text-align: center;
+        margin-bottom: 20px;
+        outline: none;
+    }
+
+    .modal-input:focus { border-color: var(--green); }
+
+    .modal-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .btn-modal-confirm {
+        background-color: var(--green);
+        color: var(--black);
+        font-family: "Tilt Warp", sans-serif;
+        font-weight: 700;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 24px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .btn-modal-confirm:hover { background-color: #a8cc00; }
+
+    .btn-modal-cancel {
+        background-color: transparent;
+        color: #aaaaaa;
+        font-family: "Tilt Warp", sans-serif;
+        border: 2px solid #444;
+        border-radius: 8px;
+        padding: 10px 24px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-modal-cancel:hover { border-color: white; color: white; }
+
+    /* ── MOBILE CARDS (hidden on desktop) ── */
+    .customer-cards { display: none; }
+
+    @media (max-width: 768px) {
+        .customers-section { padding: 40px 16px 60px; }
+        .customers-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+        .customers-title { font-size: 2.5rem; }
+        .search-input { width: 100%; }
+
+        /* Hide table, show cards */
+        .table-wrapper { display: none; }
+        .customer-cards { display: block; }
+
+        .customer-card {
+            background-color: #111111;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 14px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .card-reg { font-family: "Tilt Warp", sans-serif; font-size: 0.85rem; color: var(--green); font-weight: 700; }
+        .card-name { font-family: "Tilt Warp", sans-serif; font-size: 1.1rem; color: white; font-weight: 700; }
+        .card-email { font-family: "Tilt Warp", sans-serif; font-size: 0.85rem; color: #aaaaaa; margin-bottom: 14px; }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .card-credits {
+            font-family: "Tilt Warp", sans-serif;
+            font-size: 1rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="customers-section">
+
+    <!-- Title + Search bar + Add button -->
+    <div class="customers-header">
+        <div class="d-flex align-items-center gap-3">
+            <h1 class="customers-title">customers</h1>
+            <button class="btn-add-customer" onclick="openAddModal()">+ add</button>
+        </div>
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" class="search-input" placeholder="search by name...">
+            <i class="bi bi-search search-icon"></i>
+        </div>
+    </div>
+
+    <!-- No results message -->
+    <div id="noResults" style="display:none; font-family: 'Tilt Warp', sans-serif; color: #aaaaaa; text-align: center; padding: 30px;">
+        No customers found.
+    </div>
+
+    <div class="table-wrapper">
+    <table class="customers-table">
+        <thead>
+            <tr>
+                <th>Reg. No.</th>
+                <th>name</th>
+                <th>e-mail</th>
+                <th>subscription</th>
+                <th>credits</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <!-- Reg. No.: SGB0001, SGB0002 etc -->
+                <td class="reg-no">SGB{{ '%04d' % customer.id }}</td>
+
+                <td>{{ customer.name }}</td>
+
+                <td>{{ customer.email }}</td>
+
+                <!-- Subscription toggle -->
+                <td>
+                    <form method="POST" action="/toggle-subscription/{{ customer.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token', '') }}">
+                        <select class="subscription-select {% if customer.subscription == 0 %}inactive{% endif %}"
+                                name="subscription"
+                                onchange="this.form.submit()">
+                            <option value="1" {% if customer.subscription == 1 %}selected{% endif %}>Active</option>
+                            <option value="0" {% if customer.subscription == 0 %}selected{% endif %}>No Active</option>
+                        </select>
+                    </form>
+                </td>
+
+                <!-- Credits -->
+                <td>
+                    <div class="credits-cell">
+                        <span class="credits-value">{{ customer.credits }}</span>
+                        <button class="btn-add-credits"
+                                onclick="openModal({{ customer.id }}, '{{ customer.name }}')">+</button>
+                    </div>
+                </td>
+
+                <!-- Delete -->
+                <td>
+                    <form method="POST" action="/delete-customer/{{ customer.id }}"
+                          onsubmit="return confirm('Are you sure you want to delete {{ customer.name }}? This action cannot be undone.')">
+                        <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token', '') }}">
+                        <button type="submit" class="btn-delete">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    <!-- ── MOBILE CARDS ── -->
+    <div class="customer-cards">
+        {% for customer in customers %}
+        <div class="customer-card">
+            <div class="card-header">
+                <span class="card-reg">SGB{{ '%04d' % customer.id }}</span>
+            </div>
+            <div class="card-name">{{ customer.name }}</div>
+            <div class="card-email">{{ customer.email }}</div>
+            <div class="card-actions">
+
+                <!-- Subscription -->
+                <form method="POST" action="/toggle-subscription/{{ customer.id }}">
+                    <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token', '') }}">
+                    <select class="subscription-select {% if customer.subscription == 0 %}inactive{% endif %}"
+                            name="subscription" onchange="this.form.submit()">
+                        <option value="1" {% if customer.subscription == 1 %}selected{% endif %}>Active</option>
+                        <option value="0" {% if customer.subscription == 0 %}selected{% endif %}>No Active</option>
+                    </select>
+                </form>
+
+                <!-- Credits -->
+                <div class="card-credits">
+                    <span>{{ customer.credits }}</span>
+                    <button class="btn-add-credits"
+                            onclick="openModal({{ customer.id }}, '{{ customer.name }}')">+</button>
+                </div>
+
+                <!-- Delete -->
+                <form method="POST" action="/delete-customer/{{ customer.id }}"
+                      onsubmit="return confirm('Are you sure you want to delete {{ customer.name }}?')">
+                    <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token', '') }}">
+                    <button type="submit" class="btn-delete">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
+                </form>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- ── ADD CUSTOMER MODAL ── -->
+<div class="modal-overlay" id="addModal">
+    <div class="modal-box">
+        <div class="modal-title">Add Customer</div>
+        <div class="modal-subtitle">Add a new customer manually</div>
+        <form method="POST" action="/add-customer">
+            <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token', '') }}">
+
+            <div style="text-align:left; margin-bottom: 6px;">
+                <label class="form-label-modal">name</label>
+                <input type="text" name="name" class="modal-input" required placeholder="Full name">
+            </div>
+
+            <div style="text-align:left; margin-bottom: 6px;">
+                <label class="form-label-modal">e-mail</label>
+                <input type="email" name="email" class="modal-input" required placeholder="email@example.com">
+            </div>
+
+            <div style="text-align:left; margin-bottom: 16px;">
+                <label class="form-label-modal">credits</label>
+                <input type="number" name="credits" class="modal-input" value="0" min="0" max="100">
+            </div>
+
+            <div class="modal-buttons">
+                <button type="submit" class="btn-modal-confirm">Add</button>
+                <button type="button" class="btn-modal-cancel" onclick="closeAddModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ── CREDITS MODAL ── -->
+<div class="modal-overlay" id="creditsModal">
+    <div class="modal-box">
+        <div class="modal-title">Add Credits</div>
+        <div class="modal-subtitle" id="modalSubtitle">Adding credits to member</div>
+        <form method="POST" id="creditsForm" action="">
+            <input type="hidden" name="csrf_token" value="{{ session.get('_csrf_token', '') }}">
+            <input type="number" class="modal-input" name="amount"
+                   id="creditsAmount" min="1" max="100" value="10" required>
+            <div class="modal-buttons">
+                <button type="submit" class="btn-modal-confirm">Add</button>
+                <button type="button" class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ── SEARCH ──
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('.customers-table tbody tr');
+    const cards = document.querySelectorAll('.customer-card');
+    const noResults = document.getElementById('noResults');
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        // Filter table rows
+        tableRows.forEach(row => {
+            const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            if (name.includes(query)) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Filter mobile cards
+        cards.forEach(card => {
+            const name = card.querySelector('.card-name').textContent.toLowerCase();
+            if (name.includes(query)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+    });
+
+    // ── ADD CUSTOMER MODAL ──
+    function openAddModal() {
+        document.getElementById('addModal').classList.add('active');
+    }
+
+    function closeAddModal() {
+        document.getElementById('addModal').classList.remove('active');
+    }
+
+    document.getElementById('addModal').addEventListener('click', function(e) {
+        if (e.target === this) closeAddModal();
+    });
+
+    document.querySelectorAll('.subscription-select').forEach(select => {
+        select.addEventListener('change', function() {
+            if (this.value === '0') {
+                this.classList.add('inactive');
+            } else {
+                this.classList.remove('inactive');
+            }
+        });
+    });
+
+    // ── CREDITS MODAL ──
+    function openModal(userId, userName) {
+        document.getElementById('modalSubtitle').textContent = 'Adding credits to ' + userName;
+        document.getElementById('creditsForm').action = '/add-credits/' + userId;
+        document.getElementById('creditsAmount').value = 10;
+        document.getElementById('creditsModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('creditsModal').classList.remove('active');
+    }
+
+    // Close modal clicking outside
+    document.getElementById('creditsModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+</script>
+{% endblock %}

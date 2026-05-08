@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Super Gym Bros — About Us{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero { width: 100%; height: 60vh; overflow: hidden; display: block; line-height: 0; }
+    .hero img { width: 100%; height: 100%; object-fit: cover; object-position: left center; display: block; }
+
+    .about-section { background-color: var(--black); padding: 60px 120px 50px; text-align: center; }
+    .about-title { font-family: "Tilt Warp", sans-serif; font-size: 4rem; color: var(--green); letter-spacing: 3px; margin-bottom: 30px; }
+    .about-text { font-family: "Tilt Warp", sans-serif; font-size: 1rem; color: white; line-height: 1.8; text-align: left; }
+
+    .subsection { background-color: var(--black); padding: 0 120px 40px; }
+    .subsection-title { font-family: "Tilt Warp", sans-serif; font-size: 1.6rem; color: white; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+    .subsection-title .arrows { color: var(--green); }
+    .subsection-text { font-family: "Tilt Warp", sans-serif; font-size: 0.95rem; color: white; line-height: 1.8; padding-left: 30px; }
+
+    .timetable-section { background-color: var(--green); padding: 50px 60px; text-align: center; }
+    .timetable-title { font-family: "Tilt Warp", sans-serif; font-size: 3.5rem; color: white !important; letter-spacing: 3px; margin-bottom: 30px; }
+    .timetable-day { font-family: "Tilt Warp", sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--black) !important; text-align: center; }
+    .timetable-hours { font-family: "Tilt Warp", sans-serif; font-size: 0.9rem; color: var(--black) !important; text-align: center; margin-top: 6px; }
+
+    .contact-section { background-color: var(--black); padding: 60px; }
+    .contact-title { font-family: "Tilt Warp", sans-serif; font-size: 1.5rem; color: var(--green); margin-bottom: 28px; }
+    .contact-item { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 22px; color: white; font-family: "Tilt Warp", sans-serif; font-size: 1rem; line-height: 1.6; }
+    .contact-item i { font-size: 1.4rem; color: white; margin-top: 2px; flex-shrink: 0; }
+    .follow-title { font-family: "Tilt Warp", sans-serif; font-size: 1.5rem; color: var(--green); margin-bottom: 28px; }
+    .social-icons { display: flex; gap: 20px; align-items: center; margin-top: 10px; }
+    .social-icon { width: 52px; height: 52px; border-radius: 50%; background-color: white; display: flex; align-items: center; justify-content: center; color: var(--black); font-size: 1.4rem; text-decoration: none; transition: background-color 0.2s; }
+    .social-icon:hover { background-color: var(--green); color: var(--black); }
+
+    .newsletter-title { font-family: "Tilt Warp", sans-serif; font-size: 1.5rem; color: var(--green); margin-bottom: 20px; }
+    .newsletter-label { font-family: "Tilt Warp", sans-serif; font-size: 1rem; color: white; margin-bottom: 10px; }
+    .newsletter-input { width: 100%; background-color: var(--black); border: 2px solid white; border-radius: 4px; padding: 10px 14px; color: white; font-family: "Tilt Warp", sans-serif; font-size: 0.95rem; margin-bottom: 14px; outline: none; }
+    .newsletter-input:focus { border-color: var(--green); }
+    .btn-subscribe { background-color: var(--green); color: var(--black); font-family: "Tilt Warp", sans-serif; font-weight: 700; font-size: 1rem; border: none; border-radius: 6px; padding: 10px 28px; transition: background-color 0.2s; cursor: pointer; }
+    .btn-subscribe:hover { background-color: #a8cc00; }
+
+    @media (max-width: 992px) {
+        .about-section { padding: 50px 60px 40px; }
+        .subsection { padding: 0 60px 30px; }
+    }
+
+    @media (max-width: 768px) {
+        .hero { height: 35vh; }
+        .hero img { object-position: left center; }
+        .about-section { padding: 40px 24px 30px; }
+        .about-title { font-size: 2.8rem; }
+        .about-text { font-size: 0.9rem; }
+        .subsection { padding: 0 24px 30px; }
+        .subsection-title { font-size: 1.2rem; }
+        .subsection-text { font-size: 0.88rem; padding-left: 10px; }
+        .timetable-section { padding: 40px 16px; }
+        .timetable-title { font-size: 2.5rem; }
+        .timetable-day { font-size: 0.85rem; }
+        .timetable-hours { font-size: 0.75rem; }
+        .contact-section { padding: 40px 24px; }
+        .contact-title { font-size: 1.2rem; }
+        .follow-title { font-size: 1.2rem; }
+        .newsletter-title { font-size: 1.2rem; }
+        .social-icon { width: 42px; height: 42px; font-size: 1.1rem; }
+    }
+
+    @media (max-width: 480px) {
+        .about-title { font-size: 2.2rem; }
+        .timetable-title { font-size: 2rem; }
+        .timetable-day { font-size: 0.75rem; }
+        .timetable-hours { font-size: 0.65rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <!-- ── HERO ── -->
+    <section class="hero">
+        <img src="{{ url_for('static', filename='img/about-hero.jpg') }}" alt="Super Gym Bros Gym">
+    </section>
+
+    <!-- ── ABOUT SECTION ── -->
+    <section class="about-section">
+        <h2 class="about-title">about us</h2>
+        <p class="about-text">
+            Welcome to Super Gym Bros — a place built for those who are serious about their fitness journey.
+            Founded in 2018, our gym was created with one mission in mind: to provide a high-energy,
+            professional training environment for people of all levels. Whether you're just starting out
+            or you're a seasoned athlete, our doors are open for you.<br><br>
+            We offer a wide range of classes including CrossFit, Hyrox, and Pilates Reformer, all led by
+            certified and experienced coaches who are passionate about helping you reach your goals.
+            Our state-of-the-art equipment and modern facilities ensure that every session is effective,
+            safe, and enjoyable.<br><br>
+            At Super Gym Bros, we believe that fitness is not just a hobby — it's a lifestyle.
+            Join our community and discover what you're truly capable of.
+        </p>
+    </section>
+
+    <!-- ── ABOUT SUBSECTIONS ── -->
+    <div class="subsection">
+        <div class="subsection-title"><span class="arrows">»</span> we have the best trainers</div>
+        <p class="subsection-text">
+            Our coaching team is made up of certified professionals with years of experience
+            in their respective disciplines. From CrossFit and Hyrox to Pilates Reformer,
+            every trainer at Super Gym Bros is passionate about guiding you safely and
+            effectively toward your personal goals. They don't just train you — they inspire you.
+        </p>
+        <div class="subsection-title mt-4"><span class="arrows">»</span> modern gym and fitness facilities</div>
+        <p class="subsection-text">
+            We have invested in top-of-the-line equipment to give you the best training
+            experience possible. Our spacious facility is designed to accommodate all types
+            of workouts, with dedicated areas for functional training, strength, cardio, and
+            group classes. Clean, modern, and always maintained to the highest standards.
+        </p>
+    </div>
+
+    <!-- ── TIMETABLE SECTION ── -->
+    <section class="timetable-section">
+        <h2 class="timetable-title">time table</h2>
+        <div class="row justify-content-center g-2">
+            <div class="col"><div class="timetable-day">Monday</div><div class="timetable-hours">09:00 – 21:00</div></div>
+            <div class="col"><div class="timetable-day">Tuesday</div><div class="timetable-hours">09:00 – 21:00</div></div>
+            <div class="col"><div class="timetable-day">Wednesday</div><div class="timetable-hours">09:00 – 21:00</div></div>
+            <div class="col"><div class="timetable-day">Thursday</div><div class="timetable-hours">09:00 – 21:00</div></div>
+            <div class="col"><div class="timetable-day">Friday</div><div class="timetable-hours">09:00 – 21:00</div></div>
+            <div class="col"><div class="timetable-day">Saturday</div><div class="timetable-hours">09:00 – 17:00</div></div>
+        </div>
+    </section>
+
+    <!-- ── CONTACT SECTION ── -->
+    <section class="contact-section">
+        <div class="row">
+            <div class="col-lg-4 col-12 mb-5 mb-lg-0">
+                <div class="contact-title">contact info</div>
+                <div class="contact-item"><i class="bi bi-geo-alt-fill"></i><span>Dreamland 25 str.<br>PC: 55555<br>NEVERLAND</span></div>
+                <div class="contact-item"><i class="bi bi-envelope-fill"></i><span>info@supergymbros.com</span></div>
+                <div class="contact-item"><i class="bi bi-whatsapp"></i><span>+99 555 555 555</span></div>
+            </div>
+            <div class="col-lg-4 col-12 mb-5 mb-lg-0">
+                <div class="follow-title">follow us</div>
+                <div class="social-icons">
+                    <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-4 col-12">
+                <div class="newsletter-title">newsletter</div>
+                <div class="newsletter-label">e-mail</div>
+                <form method="POST" action="/subscribe">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="email" name="email" class="newsletter-input" placeholder="" required>
+                    <button type="submit" class="btn-subscribe">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}
