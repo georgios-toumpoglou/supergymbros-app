@@ -46,6 +46,13 @@ def load_user(user_id):
 # Create tables if they don't exist
 with app.app_context():
     db.create_all()
+    #tempo
+    from models import User
+
+    if not User.query.filter_by(email='admin@supergymbros.com').first():
+        from seed import seed
+
+        seed()
 
 # Add enumerate to Jinja2 globals
 app.jinja_env.globals['enumerate'] = enumerate
