@@ -464,7 +464,7 @@ def my_bookings():
 
     from datetime import date, datetime, timedelta, time as dtime
 
-    today = date.today()
+    today = now_greece().date()
     now = now_greece()
 
     # If Sunday, reset schedule for next week
