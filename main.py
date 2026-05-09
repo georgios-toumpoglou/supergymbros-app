@@ -467,13 +467,12 @@ def my_bookings():
     today = date.today()
     now = now_greece()
 
-    # If Sunday IN GREECE, reset schedule
-    greece_today = now_greece().date()
-    if greece_today.weekday() == 6:
+    # If Sunday, reset schedule for next week
+    if today.weekday() == 6:
         reset_weekly_schedule()
-        monday = greece_today + timedelta(days=1)
+        monday = today + timedelta(days=1)
     else:
-        monday = greece_today - timedelta(days=greece_today.weekday())
+        monday = today - timedelta(days=today.weekday())
 
     # Week dates
     week_dates = {
@@ -541,13 +540,7 @@ def schedule():
     from datetime import date, datetime, timedelta
 
     today = date.today()
-
-    # If Sunday, reset schedule
-    if today.weekday() == 6:
-        reset_weekly_schedule()
-        monday = today + timedelta(days=1)
-    else:
-        monday = today - timedelta(days=today.weekday())
+    monday = today - timedelta(days=today.weekday())
 
     week_dates = {
         'monday':    monday,
