@@ -61,82 +61,63 @@ def get_week_dates():
 def seed():
     with app.app_context():
 
-        # ── CLEAR EXISTING DATA ──
-        Booking.query.delete()
-        NextWeekSchedule.query.delete()
-        Schedule.query.delete()
-        GymClass.query.delete()
-        User.query.delete()
-        db.session.commit()
-        print("Cleared existing data.")
-
-        # ── OWNER ──
-        owner = User(
-            name         = 'Admin',
-            email        = 'admin@supergymbros.com',
-            password     = generate_password_hash('admin1234'),
-            credits      = 0,
-            subscription = 1,
-            role         = 1
-        )
-        db.session.add(owner)
-        db.session.commit()
-        print("Owner created.")
-
-        # ── GYM CLASSES ──
-        classes_data = [
-            ('Cross Training', 'Mike Ross',    15, 'High-intensity functional fitness combining weightlifting, cardio and gymnastics.'),
-            ('Hyrox',          'Sarah Blake',  12, 'Fitness racing training combining 8 functional workout stations with running intervals.'),
-            ('Pilates Reformer','Elena Papadaki', 8, 'Spring-resistance machine workout focusing on core strength, posture and flexibility.'),
-            ('TRX',            'Chris Damon',  12, 'Suspension training using bodyweight and gravity to build strength and stability.'),
-            ('Box Fit',        'Nick Stavros', 15, 'Non-contact boxing-inspired fitness class combining punching combos and conditioning.'),
-            ('Yoga',           'Maria Fontaine',10, 'Blending Hatha and Vinyasa styles to improve mobility, reduce stress and enhance body awareness.'),
-        ]
-
+        # ── GYM CLASSES (only if not exist) ──
         classes = {}
-        for name, instructor, capacity, description in classes_data:
-            gym_class = GymClass(
-                name        = name,
-                instructor  = instructor,
-                capacity    = capacity,
-                description = description
-            )
-            db.session.add(gym_class)
-            db.session.flush()
-            classes[name] = gym_class
+        existing_classes = GymClass.query.all()
 
-        db.session.commit()
-        print(f"{len(classes)} gym classes created.")
+        if not existing_classes:
+            classes_data = [
+                ('Cross Training', 'Mike Ross',    15, 'High-intensity functional fitness combining weightlifting, cardio and gymnastics.'),
+                ('Hyrox',          'Sarah Blake',  12, 'Fitness racing training combining 8 functional workout stations with running intervals.'),
+                ('Pilates Reformer','Elena Papadaki', 8, 'Spring-resistance machine workout focusing on core strength, posture and flexibility.'),
+                ('TRX',            'Chris Damon',  12, 'Suspension training using bodyweight and gravity to build strength and stability.'),
+                ('Box Fit',        'Nick Stavros', 15, 'Non-contact boxing-inspired fitness class combining punching combos and conditioning.'),
+                ('Yoga',           'Maria Fontaine',10, 'Blending Hatha and Vinyasa styles to improve mobility, reduce stress and enhance body awareness.'),
+            ]
+            for name, instructor, capacity, description in classes_data:
+                gym_class = GymClass(
+                    name        = name,
+                    instructor  = instructor,
+                    capacity    = capacity,
+                    description = description
+                )
+                db.session.add(gym_class)
+                db.session.flush()
+                classes[name] = gym_class
+            db.session.commit()
+            print(f"{len(classes)} gym classes created.")
+        else:
+            classes = {c.name: c for c in existing_classes}
+            print("Gym classes already exist, skipping.")
 
         # ── CURRENT WEEK SCHEDULE ──
-        week_dates = get_week_dates()
+        if not Schedule.query.first():
+            week_dates = get_week_dates()
+            for class_name, day, start, end in DEFAULT_PROGRAM:
+                s = Schedule(
+                    class_id        = classes[class_name].id,
+                    date            = week_dates[day],
+                    time_start      = time(start, 0),
+                    time_end        = time(end, 0),
+                    slots_available = classes[class_name].capacity
+                )
+                db.session.add(s)
+            db.session.commit()
+            print("Current week schedule created.")
 
-        for class_name, day, start, end in DEFAULT_PROGRAM:
-            s = Schedule(
-                class_id        = classes[class_name].id,
-                date            = week_dates[day],
-                time_start      = time(start, 0),
-                time_end        = time(end, 0),
-                slots_available = classes[class_name].capacity
-            )
-            db.session.add(s)
+        # ── NEXT WEEK SCHEDULE ──
+        if not NextWeekSchedule.query.first():
+            for class_name, day, start, end in DEFAULT_PROGRAM:
+                nws = NextWeekSchedule(
+                    class_id    = classes[class_name].id,
+                    day_of_week = day,
+                    time_start  = time(start, 0),
+                    time_end    = time(end, 0)
+                )
+                db.session.add(nws)
+            db.session.commit()
+            print("Next week schedule created.")
 
-        db.session.commit()
-        print("Current week schedule created.")
-
-        # ── NEXT WEEK SCHEDULE (default = same program) ──
-        for class_name, day, start, end in DEFAULT_PROGRAM:
-            nws = NextWeekSchedule(
-                class_id    = classes[class_name].id,
-                day_of_week = day,
-                time_start  = time(start, 0),
-                time_end    = time(end, 0)
-            )
-            db.session.add(nws)
-
-        db.session.commit()
-        print("Next week schedule created.")
-        print("✅ Database seeded successfully!")
         print("✅ Database seeded successfully!")
 
 
