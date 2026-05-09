@@ -438,19 +438,14 @@ def reset_weekly_schedule():
 
     # Reset NextWeekSchedule with same program for following week
     NextWeekSchedule.query.delete()
-    day_names = ['monday','tuesday','wednesday','thursday','friday','saturday']
-    for s in next_week:
-        # Find the day_of_week for this schedule entry
-        for i, day_date in week_dates.items():
-            if s.date == day_date:
-                nws = NextWeekSchedule(
-                    class_id    = s.class_id,
-                    day_of_week = i,
-                    time_start  = s.time_start,
-                    time_end    = s.time_end
-                )
-                db.session.add(nws)
-                break
+    for nws in next_week:
+        new_nws = NextWeekSchedule(
+            class_id    = nws.class_id,
+            day_of_week = nws.day_of_week,
+            time_start  = nws.time_start,
+            time_end    = nws.time_end
+        )
+        db.session.add(new_nws)
 
     db.session.commit()
     print("✅ Weekly schedule reset successfully!")
@@ -467,12 +462,13 @@ def my_bookings():
     today = date.today()
     now = now_greece()
 
-    # If Sunday, reset schedule for next week
-    if today.weekday() == 6:
+    # If Sunday IN GREECE, reset schedule
+    greece_today = now_greece().date()
+    if greece_today.weekday() == 6:
         reset_weekly_schedule()
-        monday = today + timedelta(days=1)
+        monday = greece_today + timedelta(days=1)
     else:
-        monday = today - timedelta(days=today.weekday())
+        monday = greece_today - timedelta(days=greece_today.weekday())
 
     # Week dates
     week_dates = {
@@ -540,7 +536,14 @@ def schedule():
     from datetime import date, datetime, timedelta
 
     today = date.today()
-    monday = today - timedelta(days=today.weekday())
+
+    # If Sunday IN GREECE, reset schedule
+    greece_today = now_greece().date()
+    if greece_today.weekday() == 6:
+        reset_weekly_schedule()
+        monday = greece_today + timedelta(days=1)
+    else:
+        monday = greece_today - timedelta(days=greece_today.weekday())
 
     week_dates = {
         'monday':    monday,
