@@ -49,24 +49,6 @@ def load_user(user_id):
 with app.app_context():
     db.create_all()
 
-    # Add admin if not exists
-    from werkzeug.security import generate_password_hash as gph
-    if not User.query.filter_by(email='admin@supergymbros.com').first():
-        admin = User(
-            name         = 'Admin',
-            email        = 'admin@supergymbros.com',
-            password     = gph('admin1234'),
-            credits      = 0,
-            subscription = 1,
-            role         = 1
-        )
-        db.session.add(admin)
-        db.session.commit()
-
-    # Seed schedule if empty
-    if not Schedule.query.first():
-        from seed import seed
-        seed()
 
 # Add enumerate to Jinja2 globals
 app.jinja_env.globals['enumerate'] = enumerate
