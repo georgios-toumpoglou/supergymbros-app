@@ -385,7 +385,7 @@ def reset_weekly_schedule():
     """Resets all bookings and creates schedule for next week based on NextWeekSchedule."""
     from datetime import date, timedelta, time as dtime
 
-    today = date.today()
+    today = now_greece().date()
     monday = today + timedelta(days=1)  # Next Monday (called on Sunday)
 
     # Check if schedule already exists for next week
