@@ -4,15 +4,19 @@ from models import db, User, NewsletterSubscriber, Booking, Schedule, GymClass, 
 from forms import RegisterForm, LoginForm
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+import pytz
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Fix PostgreSQL URL for SQLAlchemy
-database_url = os.getenv('DATABASE_URL', 'sqlite:///gym.db')
-if database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+# ── TIMEZONE ──
+GREECE_TZ = pytz.timezone('Europe/Athens')
+
+def now_greece():
+    """Return current datetime in Greece timezone (naive)."""
+    from datetime import datetime
+    return datetime.now(GREECE_TZ).replace(tzinfo=None)
 
 app = Flask(__name__)
 
@@ -21,9 +25,7 @@ from flask_wtf.csrf import CSRFProtect, CSRFError
 csrf = CSRFProtect(app)
 
 # ── DATABASE CONFIGURATION ──
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gym.db'
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///gym.db')
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///gym.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback-secret-key')
 app.config['SESSION_PERMANENT'] = False
@@ -46,7 +48,6 @@ def load_user(user_id):
 # Create tables if they don't exist
 with app.app_context():
     db.create_all()
-
 
 # Add enumerate to Jinja2 globals
 app.jinja_env.globals['enumerate'] = enumerate
@@ -274,7 +275,7 @@ def book(schedule_id):
 
     # Check deadline (1 hour before)
     class_datetime = datetime.combine(schedule.date, schedule.time_start)
-    if datetime.now() > class_datetime - timedelta(hours=1):
+    if now_greece() > class_datetime - timedelta(hours=1):
         flash('Booking is closed for this class (less than 1 hour before start).', 'error')
         return redirect(url_for('my_bookings'))
 
@@ -312,7 +313,7 @@ def cancel(schedule_id):
 
     # Check deadline (1 hour before)
     class_datetime = datetime.combine(schedule.date, schedule.time_start)
-    if datetime.now() > class_datetime - timedelta(hours=1):
+    if now_greece() > class_datetime - timedelta(hours=1):
         flash('Cancellation is closed for this class (less than 1 hour before start).', 'error')
         return redirect(url_for('my_bookings'))
 
@@ -424,7 +425,7 @@ def my_bookings():
     from datetime import date, datetime, timedelta, time as dtime
 
     today = date.today()
-    now = datetime.now()
+    now = now_greece()
 
     # If Sunday, reset schedule for next week
     if today.weekday() == 6:
@@ -620,9 +621,6 @@ def next_week_set():
     db.session.commit()
     return redirect(url_for('schedule') + '?view=next')
 
-
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')
