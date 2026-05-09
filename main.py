@@ -463,8 +463,10 @@ def my_bookings():
         return redirect(url_for('index'))
 
     from datetime import date, datetime, timedelta, time as dtime
+    import pytz
 
-    today = now_greece().date()
+    greece_tz = pytz.timezone('Europe/Athens')
+    today = datetime.now(greece_tz).date()
     now = now_greece()
 
     # If Sunday, reset schedule for next week
