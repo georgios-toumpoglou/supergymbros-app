@@ -316,7 +316,7 @@
                                 <span class="class-name-cell">{{ schedule.gym_class.name }}</span>
                                 <span class="slots-info">
                                     <i class="bi bi-people-fill"></i>
-                                    {{ schedule.slots_available }}/{{ schedule.gym_class.capacity }}
+                                    {{ schedule.gym_class.capacity - schedule.slots_available }}/{{ schedule.gym_class.capacity }}
                                 </span>
                                 {% if is_booked %}
                                     {% if schedule.can_cancel %}
@@ -390,7 +390,7 @@
                                     <span class="class-name-cell">{{ schedule.gym_class.name }}</span>
                                     <span class="slots-info">
                                         <i class="bi bi-people-fill"></i>
-                                        {{ schedule.slots_available }}/{{ schedule.gym_class.capacity }}
+                                        {{ schedule.gym_class.capacity - schedule.slots_available }}/{{ schedule.gym_class.capacity }}
                                     </span>
                                     {% if is_booked %}
                                         {% if schedule.can_cancel %}
