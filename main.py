@@ -265,7 +265,7 @@ def add_customer():
     return redirect(url_for('customers'))
 
 
-
+@app.route('/toggle-subscription/<int:user_id>', methods=['POST'])
 @login_required
 @csrf.exempt
 def toggle_subscription(user_id):
